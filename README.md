@@ -1,4 +1,4 @@
-### Parallelized version of of the R package surface
+### Parallelized version of the R package surface
 
 The main functions fit a series of Hansen models, then identify cases of convergent evolution where multiple lineages have shifted to the same adaptive peak. It enables to uses multiple CPUs through the *doParallel* package and is faster than the original version of surface. For more information on surface see [Ingram and Mahler (2013)](http://www.sciencemag.org/content/341/6143/292).
 
