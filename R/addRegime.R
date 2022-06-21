@@ -51,7 +51,7 @@ addRegime <- function(otree,
   }
   iter <- 2:length(nodes)
   iter <- iter[iter %in% skip == FALSE]
-  for (i in 2:iter) {
+  for (i in iter) {
     #if (i %in% skip == FALSE) {
       shifts[i] <- Letters[1]
       names(shifts)[i] <- nodes[i]
