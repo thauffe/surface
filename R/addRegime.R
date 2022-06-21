@@ -61,19 +61,20 @@ addRegime <- function(otree,
   }
   else {
     registerDoParallel(ncores)
-    Fitted <- foreach(i = iter, .packages = c('ouch')) %dopar% fitHansen(i, 
-                                                                         error_skip, 
-                                                                         k, 
-                                                                         kk, 
-                                                                         n, 
-                                                                         nt, 
-                                                                         Letters, 
-                                                                         nodes, 
-                                                                         oldshifts,
-                                                                         odata2, 
-                                                                         otree,
-                                                                         oldaic, 
-                                                                         verbose = FALSE)
+    Fitted <- foreach(i = iter, 
+                      .packages = c('ouch')) %dopar% fitHansen(i, 
+                                                               error_skip, 
+                                                               k, 
+                                                               kk, 
+                                                               n, 
+                                                               nt, 
+                                                               Letters, 
+                                                               nodes, 
+                                                               oldshifts,
+                                                               odata2, 
+                                                               otree,
+                                                               oldaic, 
+                                                               verbose = FALSE)
     stopImplicitCluster()
     for (i in 1:length(Fitted)) {
       fits[[i]] <- Fitted[[i]]$fit
@@ -109,9 +110,20 @@ addRegime <- function(otree,
   return(list(fit = fits[[as.numeric(best)]], all_aic = aics, aic = aics[best], savedshifts=newshifts, n_regimes=n_regimes))	
 }
 
-fitHansen <- function(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, otree, oldaic, verbose) {
-  # shifts[i] <- Letters[1]
-  # names(shifts)[i] <- nodes[i]
+
+fitHansen <- function(i, 
+                      error_skip, 
+                      k, 
+                      kk, 
+                      n, 
+                      nt, 
+                      Letters, 
+                      nodes, 
+                      oldshifts, 
+                      odata2, 
+                      otree, 
+                      oldaic, 
+                      verbose) {
   tempshifts <- c(oldshifts, Letters[1])
   names(tempshifts)[k] <- i
   tempregs <- repaint(otree, regshifts = tempshifts)

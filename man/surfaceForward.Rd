@@ -14,7 +14,7 @@ filename="temp_out_list.R", verbose=FALSE, plotaic=FALSE,
 error_skip=FALSE, sample_shifts=FALSE, sample_threshold=2)
 addRegime(otree, odata, oldshifts, oldaic, oldfit, alloldaic=NULL, 
 exclude=NULL, aic_threshold=0, verbose=FALSE, plotaic=FALSE, 
-error_skip=FALSE, sample_shifts=FALSE, sample_threshold=2)
+error_skip=FALSE, sample_shifts=FALSE, sample_threshold=2, ncores=1)
 }
 \arguments{
   \item{otree}{
@@ -70,6 +70,9 @@ Previous fitted Hansen model
 }
   \item{alloldaic}{
 AICc values for each tested shift point in the previous iteration
+}
+  \item{ncores}{
+number of cores for parallel model fitting
 }
 }
 \details{

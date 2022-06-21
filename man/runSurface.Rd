@@ -9,7 +9,7 @@ Carries out both the forward and backward phases of SURFACE's stepwise AIC routi
 \usage{
 runSurface(tree, dat, exclude = 0, aic_threshold = 0, max_steps = NULL, 
 verbose = FALSE, plotaic = FALSE, error_skip = FALSE, only_best = FALSE,
-sample_shifts=FALSE, sample_threshold = 2)
+sample_shifts = FALSE, sample_threshold = 2, ncores = 1)
 }
 \arguments{
   \item{tree}{
@@ -44,6 +44,9 @@ A logical indicating whether to randomly sample from among the best models at ea
 }
   \item{sample_threshold}{
 Number of AICc units within which to sample among candidate models that are close to as good as the best model at each step (defaults to 2, but only used if \code{sample_shifts=TRUE}, and only used in the backward phase if \code{only_best=TRUE})
+  \item{ncores}{
+number of cores for parallel model fitting
+}
 }
 
 }
