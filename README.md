@@ -37,4 +37,4 @@ points(rep(1:4, each = nrow(Time)), c(Time),
        pch = 19, col = adjustcolor("black", alpha = 0.3))
 ```
 
-![wall-time](https://github.com/thauffe/surface/walltime.png)
+![wall-time](https://github.com/thauffe/surface/blob/master/walltime.png)
