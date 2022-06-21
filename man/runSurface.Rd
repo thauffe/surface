@@ -44,11 +44,10 @@ A logical indicating whether to randomly sample from among the best models at ea
 }
   \item{sample_threshold}{
 Number of AICc units within which to sample among candidate models that are close to as good as the best model at each step (defaults to 2, but only used if \code{sample_shifts=TRUE}, and only used in the backward phase if \code{only_best=TRUE})
+}
   \item{ncores}{
 number of cores for parallel model fitting
 }
-}
-
 }
 \details{
 Carries out all steps of SURFACE, including converting data structures and running both forward and backward phases of the analysis. The default behavior should be appropriate in most circumstances, but some functionalities require using the functions \code{surfaceForward} and \code{surfaceBackward} that are called by \code{runSurface}
