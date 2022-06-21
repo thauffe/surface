@@ -77,7 +77,7 @@ addRegime <- function(otree,
     # if (verbose) {
     #   print(c(names(aics[i]),round(as.numeric(aics[i]-oldaic),2)), quote=F)
     # }
-    Fitted <- fitHansen(i, error_skip, k, kk, Letters, nodes, oldshifts, odata2, oldaic, verbose)
+    Fitted <- fitHansen(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, oldaic, verbose)
     fits[[i]] <- Fitted$fit
     shifts[i] <- Fitted$letter
     names(shifts)[i] <- Fitted$node
@@ -110,7 +110,7 @@ addRegime <- function(otree,
   return(list(fit=fits[[as.numeric(best)]], all_aic=aics, aic=aics[best], savedshifts=newshifts, n_regimes=n_regimes))	
 }
 
-fitHansen <- function(i, error_skip, k, kk, Letters, nodes, oldshifts, odata2, oldaic, verbose) {
+fitHansen <- function(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, oldaic, verbose) {
   # shifts[i] <- Letters[1]
   # names(shifts)[i] <- nodes[i]
   tempshifts <- c(oldshifts, Letters[1])
