@@ -51,12 +51,12 @@ addRegime <- function(otree,
   iter <- iter[iter %in% skip == FALSE]
   if (ncores == 1) {
     for (i in iter) {
-      Fitted <- fitHansen(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, oldaic, verbose)
+      Fitted <- fitHansen(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, otree, oldaic, verbose)
       fits[[i]] <- Fitted$fit
       shifts[i] <- Fitted$letter
       names(shifts)[i] <- Fitted$node
-      LnLs[i] <- Fitted$aic
-      aics[i] <- Fitted$LnL
+      LnLs[i] <- Fitted$LnL
+      aics[i] <- Fitted$aic
     }
   }
   else {
@@ -69,27 +69,23 @@ addRegime <- function(otree,
                                                                          nt, 
                                                                          Letters, 
                                                                          nodes, 
-                                                                         oldshifts, 
+                                                                         oldshifts,
                                                                          odata2, 
+                                                                         otree,
                                                                          oldaic, 
                                                                          verbose = FALSE)
     stopImplicitCluster()
-    for (i in iter) {
-      fits[[i]] <- Fitted[[i - 1]]$fit
-      shifts[i] <- Fitted[[i - 1]]$letter
-      names(shifts)[i] <- Fitted[[i - 1]]$node
-      LnLs[i] <- Fitted[[i - 1]]$aic
-      aics[i] <- Fitted[[i - 1]]$LnL
+    for (i in 1:length(Fitted)) {
+      fits[[i]] <- Fitted[[i]]$fit
+      shifts[i] <- Fitted[[i]]$letter
+      names(shifts)[i] <- Fitted[[i]]$node
+      LnLs[i] <- Fitted[[i]]$LnL
+      aics[i] <- Fitted[[i]]$aic
     }
-    # fits <- lapply(Fitted, function(x) x$fit)
-    # shifts[iter] <- Fitted[[iter]]$letter
-    # names(shifts)[iter] <- Fitted[[iter]]$node
-    # LnLs[iter] <- Fitted[[iter]]$aic
-    # aics[iter] <- Fitted[[iter]]$LnL
   }
   best <- names(sort(aics))[1]
   if (sample_shifts&(aics[best] - oldaic) < (aic_threshold)) {
-    candidates <- aics[which((aics-min(aics,na.rm=TRUE)) <= sample_threshold&(aics-oldaic)<(aic_threshold))]
+    candidates <- aics[which((aics - min(aics, na.rm=TRUE)) <= sample_threshold & (aics-oldaic) < (aic_threshold))]
     if (verbose) {
       print(paste("sampling 1 of", length(candidates), "models within", sample_threshold, "units of best AICc"))
     }
@@ -97,23 +93,23 @@ addRegime <- function(otree,
       best <- names(sample(candidates, 1))
     }
   }
-  newshifts <- c(oldshifts,shifts[as.numeric(best)])
+  newshifts <- c(oldshifts, shifts[as.numeric(best)])
   xx<-summary(factor(newshifts))
   n_regimes <- c(k=k,kprime=kk,deltak=k-kk,c=sum(xx[xx>1]),kprime_conv=sum(xx>1),kprime_nonconv=sum(xx==1))
   if (plotaic) {
-    plot(aics,ylim=c(min(oldaic,aics[best]),oldaic+20),xlim=c(0,dim(odata)[1]),main=k);abline(h=oldaic-seq(0,30,by=2));abline(h=aics[best],col="red")
+    plot(aics, ylim=c(min(oldaic, aics[best]),oldaic+20),xlim=c(0,dim(odata)[1]),main=k);abline(h=oldaic-seq(0,30,by=2));abline(h=aics[best],col="red")
   }
-  if (verbose ){
+  if (verbose ) {
     print(paste("old AIC =",round(oldaic,2)),quote=F)
     print(paste("new AIC =",round(as.numeric(aics[best]),2)),quote=F)
-    if ((aics[best]-oldaic)<(aic_threshold)) {
-      print(paste("adding regime shift at node",names(aics[best])),quote=F)
+    if ((aics[best]-oldaic) < (aic_threshold)) {
+      print(paste("adding regime shift at node", names(aics[best])), quote=F)
     }
   }
-  return(list(fit=fits[[as.numeric(best)]], all_aic=aics, aic=aics[best], savedshifts=newshifts, n_regimes=n_regimes))	
+  return(list(fit = fits[[as.numeric(best)]], all_aic = aics, aic = aics[best], savedshifts=newshifts, n_regimes=n_regimes))	
 }
 
-fitHansen <- function(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, oldaic, verbose) {
+fitHansen <- function(i, error_skip, k, kk, n, nt, Letters, nodes, oldshifts, odata2, otree, oldaic, verbose) {
   # shifts[i] <- Letters[1]
   # names(shifts)[i] <- nodes[i]
   tempshifts <- c(oldshifts, Letters[1])
