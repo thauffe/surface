@@ -14,8 +14,8 @@ addRegime <- function(otree,
   if (is.null(oldshifts)) {
     oldshifts<-c("1"="a")
   }
-  Letters <- c(letters,paste("z",letters,sep=""),paste("zz",letters,sep="")) 
-  Letters <- Letters[-which(Letters%in%oldshifts)]
+  Letters <- c(letters, paste("z",letters,sep=""),paste("zz",letters,sep="")) 
+  Letters <- Letters[-which(Letters %in% oldshifts)]
   n <- otree@nterm
   nt<-dim(odata)[2]
   nodes <- otree@nodes
@@ -52,33 +52,37 @@ addRegime <- function(otree,
   iter <- 2:length(nodes)
   iter <- iter[iter %in% skip == FALSE]
   for (i in iter) {
-    #if (i %in% skip == FALSE) {
-      shifts[i] <- Letters[1]
-      names(shifts)[i] <- nodes[i]
-      tempshifts <- c(oldshifts, Letters[1])
-      names(tempshifts)[k] <- i
-      tempregs <- repaint(otree, regshifts = tempshifts)
-      if (error_skip) {
-        te <- try( fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2]))) )
-        if (class(te) == "try-error") {
-          print(paste("error fitting regime",i), quote=F)
-          LnLs[i] <- NA
-          aics[i] <- aic_threshold+9999
-        }
-        else {
-          LnLs[i] <- sum(sapply(fits[[i]], function(x)summary(x)$loglik))
-          aics[i] <- getAIC(LnLs[i], k+nt*(2+kk), n*nt,TRUE)
-        }
-      }
-      else {
-        fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2])))
-        LnLs[i] <- sum(sapply(fits[[i]],function(x)summary(x)$loglik))
-        aics[i] <- getAIC(LnLs[i], k+nt*(2+kk), n*nt, TRUE)
-      }
-      if (verbose) {
-        print(c(names(aics[i]),round(as.numeric(aics[i]-oldaic),2)), quote=F)
-      }
-   # }
+    # shifts[i] <- Letters[1]
+    # names(shifts)[i] <- nodes[i]
+    # tempshifts <- c(oldshifts, Letters[1])
+    # names(tempshifts)[k] <- i
+    # tempregs <- repaint(otree, regshifts = tempshifts)
+    # if (error_skip) {
+    #   te <- try( fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2]))) )
+    #   if (class(te) == "try-error") {
+    #     print(paste("error fitting regime",i), quote=F)
+    #     LnLs[i] <- NA
+    #     aics[i] <- aic_threshold+9999
+    #   }
+    #   else {
+    #     LnLs[i] <- sum(sapply(fits[[i]], function(x)summary(x)$loglik))
+    #     aics[i] <- getAIC(LnLs[i], k+nt*(2+kk), n*nt,TRUE)
+    #   }
+    # }
+    # else {
+    #   fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2])))
+    #   LnLs[i] <- sum(sapply(fits[[i]],function(x)summary(x)$loglik))
+    #   aics[i] <- getAIC(LnLs[i], k+nt*(2+kk), n*nt, TRUE)
+    # }
+    # if (verbose) {
+    #   print(c(names(aics[i]),round(as.numeric(aics[i]-oldaic),2)), quote=F)
+    # }
+    Fitted <- fitHansen(i, k, kk, Letters, nodes, oldshifts, odata2, oldaic, verbose)
+    fits[[i]] <- Fitted$fit
+    shifts[i] <- Fitted$letter
+    names(shifts)[i] <- Fitted$node
+    LnLs[i] <- Fitted$aic
+    aics[i] <- Fitted$LnL
   }
   best <- names(sort(aics))[1]
   if (sample_shifts&(aics[best] - oldaic) < (aic_threshold)) {
@@ -103,9 +107,43 @@ addRegime <- function(otree,
       print(paste("adding regime shift at node",names(aics[best])),quote=F)
     }
   }
-  return(list(fit=fits[[as.numeric(best)]],all_aic=aics,aic=aics[best],savedshifts=newshifts,n_regimes=n_regimes))	
+  return(list(fit=fits[[as.numeric(best)]], all_aic=aics, aic=aics[best], savedshifts=newshifts, n_regimes=n_regimes))	
 }
 
-function() {
-  
+fitHansen <- function(i, k, kk, Letters, nodes, oldshifts, odata2, oldaic, verbose) {
+  # shifts[i] <- Letters[1]
+  # names(shifts)[i] <- nodes[i]
+  tempshifts <- c(oldshifts, Letters[1])
+  names(tempshifts)[k] <- i
+  tempregs <- repaint(otree, regshifts = tempshifts)
+  if (error_skip) {
+    te <- try( fit <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2]))) )
+    if (class(te) == "try-error") {
+      if (verbose) {
+        print(paste("error fitting regime",i), quote=F)
+      }
+      LnL <- NA
+      aic <- aic_threshold + 9999
+    }
+    else {
+      LnL <- sum(sapply(fits[[i]], function(x)summary(x)$loglik))
+      aic <- getAIC(LnLs[i], k+nt*(2+kk), n*nt,TRUE)
+    }
+  }
+  else {
+    fit <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2])))
+    LnL <- sum(sapply(fit, function(x) summary(x)$loglik))
+    aic <- getAIC(LnL, k+nt*(2+kk), n*nt, TRUE)
+  }
+  if (verbose) {
+    print(c(names(aic), round(as.numeric(aic - oldaic), 2)), quote=F)
+  }
+  Out <- vector(mode = 'list', length = 5)
+  Out[[1]] <- fit
+  Out[[2]] <- LnL
+  Out[[3]] <- aic
+  Out[[4]] <- Letters[1]
+  Out[[5]] <- nodes[i]
+  names(Out) <- c('fit', 'LnL', 'aic', 'letter', 'node')
+  return(Out)
 }
