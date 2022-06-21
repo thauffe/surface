@@ -34,6 +34,7 @@ addRegime <- function(otree,
   oldsigmas <- sapply(oldfit, function(x) summary(x)$sigma)
   oldparms <- data.frame(matrix(c(oldalphas, oldsigmas), nrow=2, byrow=T, dimnames=list(c("a","s"), names(odata))))
   odata2 <- rbind(oldparms, odata)
+  print(odata2)
   
   if (!is.null(exclude)&!is.null(alloldaic)) {
     old <- sort(alloldaic,decreasing=TRUE)
