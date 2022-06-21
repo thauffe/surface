@@ -25,7 +25,9 @@ The time needed to identify cases of convergent evolution decreases with the num
 Time <- matrix(NA_real_, ncol = 4, nrow = 10)
 for (i in 1:4) {
   for (y in 1:10) {
-    Tmp <- system.time(Fit <- runSurface(tree = surfaceDemo$tree, dat = surfaceDemo$sim$dat, ncores = i))
+    Tmp <- system.time(Fit <- runSurface(tree = surfaceDemo$tree,
+                                         dat = surfaceDemo$sim$dat,
+                                         ncores = i))
     Time[y, i] <- Tmp[3]
   }
 }
