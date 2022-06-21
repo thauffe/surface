@@ -11,7 +11,8 @@ surfaceForward <- function(otree,
                            plotaic=FALSE, 
                            error_skip=FALSE, 
                            sample_shifts=FALSE, 
-                           sample_threshold=2) {
+                           sample_threshold=2,
+                           ncores = 1) {
 
   if(any(duplicated(as(otree,"data.frame")$labels)))
     stop("Each node in 'tree' must have a unique label for back-compatibility between formats. Use 'nameNodes(tree)' prior to converting to ouch format")
@@ -40,7 +41,8 @@ surfaceForward <- function(otree,
                                plotaic=plotaic,
                                error_skip=error_skip,
                                sample_shifts=sample_shifts, 
-                               sample_threshold=sample_threshold)
+                               sample_threshold=sample_threshold,
+                               ncores = ncores)
     if (save_steps) {
       save(out_list, file = filename)
     }
