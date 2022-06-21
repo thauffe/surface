@@ -43,7 +43,27 @@ collapseRegimes <- function(otree,
                                                                   otree, 
                                                                   odata2, 
                                                                   oldaic, 
-                                                                  error_skip)
+                                                                  error_skip,
+                                                                  verbose)
+  }
+  else {
+    registerDoParallel(ncores)
+    aics <- foreach(y = 1:ncol(Comb),
+                    .combine = 'rbind',
+                    .packages = c('ouch')) %dopar% fitHansenBackward(j = Comb[1, y], 
+                                                                     i = Comb[2, y], 
+                                                                     k, 
+                                                                     n,
+                                                                     kk, 
+                                                                     nt, 
+                                                                     oldshifts, 
+                                                                     uniqueshifts,
+                                                                     otree, 
+                                                                     odata2, 
+                                                                     oldaic, 
+                                                                     error_skip,
+                                                                     verbose = FALSE)
+    stopImplicitCluster()
   }
   # counter <- 0
   # for (i in 1:kk) {
@@ -164,14 +184,17 @@ fitHansenBackward <- function(j,
                               otree, 
                               odata2, 
                               oldaic, 
-                              error_skip) {
+                              error_skip,
+                              verbose) {
   tempshifts <- oldshifts
   tempshifts[tempshifts == uniqueshifts[j]] <- uniqueshifts[i]
   tempregs <- repaint(otree, regshifts = tempshifts)
   if (error_skip) {
     te <- try( tempfit <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes=tempregs, sqrt.alpha=sqrt(x[1]), sigma=sqrt(x[2]))) )
     if (class(te)=="try-error") {
-      print(paste("error fitting regimes",i,"and",j),quote=F)
+      if (verbose) {
+        print(paste("error fitting regimes", i, "and", j), quote = F)
+      }
       tempaic <- aic_threshold+1
     }
     else {
@@ -184,8 +207,6 @@ fitHansenBackward <- function(j,
     tempLnL <- sum(sapply(tempfit,function(x) summary(x)$loglik))
     tempaic <- getAIC(tempLnL, k+nt*(2+kk-1), n*nt, TRUE)
   }
-  # aics[counter, 1:2] <- as.character(c(uniqueshifts[i], uniqueshifts[j]))
-  # aics[counter, 3:4] <- c(tempaic, tempaic - oldaic)
   if (verbose) {
     print(c(uniqueshifts[i], uniqueshifts[j], round(tempaic-oldaic,2)), quote=F)
   }
