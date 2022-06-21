@@ -23,7 +23,7 @@ addRegime <- function(otree,
   k <- length(oldshifts)+1
   kk <- length(uniqueshifts)+1
   aics <- LnLs <- rep(NA,length(nodes))
-  names(aics) <- names(LnLs) < -nodes
+  names(aics) <- names(LnLs) <- nodes
   shifts <- character(length(nodes))
   fits <- list()
   if (class(oldfit) != "list") {
@@ -49,18 +49,17 @@ addRegime <- function(otree,
     print(paste("placing regime", k), quote=F)
     print(paste("testing ", length(nodes) - length(skip), "candidate models"), quote=F)
   }
-  
-  for (i in 2:length(nodes)) {
-    if (i %in% skip == FALSE) {
+  iter <- 2:length(nodes)
+  iter <- iter[iter %in% skip == FALSE]
+  for (i in 2:iter) {
+    #if (i %in% skip == FALSE) {
       shifts[i] <- Letters[1]
       names(shifts)[i] <- nodes[i]
       tempshifts <- c(oldshifts, Letters[1])
       names(tempshifts)[k] <- i
       tempregs <- repaint(otree, regshifts = tempshifts)
-      Cl <- makeCluster(2)
-      clusterExport(Cl, c('hansen', 'otree', 'tempregs'))
       if (error_skip) {
-        te <- try( fits[[i]] <- parApply(Cl, odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2]))) )
+        te <- try( fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2]))) )
         if (class(te) == "try-error") {
           print(paste("error fitting regime",i), quote=F)
           LnLs[i] <- NA
@@ -72,15 +71,14 @@ addRegime <- function(otree,
         }
       }
       else {
-        fits[[i]] <- parApply(Cl, odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2])))
+        fits[[i]] <- apply(odata2, 2, function(x) hansen(x[-c(1,2)], otree, regimes = tempregs, sqrt.alpha = sqrt(x[1]), sigma = sqrt(x[2])))
         LnLs[i] <- sum(sapply(fits[[i]],function(x)summary(x)$loglik))
         aics[i] <- getAIC(LnLs[i], k+nt*(2+kk), n*nt, TRUE)
       }
       if (verbose) {
         print(c(names(aics[i]),round(as.numeric(aics[i]-oldaic),2)), quote=F)
       }
-    }
-    stopCluster(Cl)
+   # }
   }
   best <- names(sort(aics))[1]
   if (sample_shifts&(aics[best] - oldaic) < (aic_threshold)) {
@@ -106,4 +104,8 @@ addRegime <- function(otree,
     }
   }
   return(list(fit=fits[[as.numeric(best)]],all_aic=aics,aic=aics[best],savedshifts=newshifts,n_regimes=n_regimes))	
+}
+
+function() {
+  
 }
