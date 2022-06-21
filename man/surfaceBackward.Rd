@@ -14,7 +14,7 @@ verbose = FALSE, only_best = FALSE, plotaic = FALSE,
 error_skip = FALSE, sample_shifts = FALSE, sample_threshold = 2)
 collapseRegimes(otree, odata, oldshifts, oldaic, oldfit, aic_threshold = 0, 
 only_best = FALSE, verbose = TRUE, plotaic = TRUE, error_skip = FALSE, 
-sample_shifts = FALSE, sample_threshold = 2)
+sample_shifts = FALSE, sample_threshold = 2, ncores = 1)
 }
 \arguments{
   \item{otree}{
@@ -64,6 +64,9 @@ AICc value for the Hansen model from the previous iteration
 }
   \item{oldfit}{
 Previous fitted Hansen model
+}
+  \item{ncores}{
+number of cores for parallel model fitting
 }
 }
 \details{
