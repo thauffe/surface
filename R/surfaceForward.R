@@ -19,10 +19,10 @@ surfaceForward <- function(otree,
   n<-otree@nterm
   nt<-dim(odata)[2]
   if (is.null(max_steps)) {
-    max_steps<-otree@nnodes
+    max_steps <- otree@nnodes
   }
   if (is.null(starting_list)) {
-    out_list <- startingModel(otree,odata,starting_shifts)
+    out_list <- startingModel(otree, odata, starting_shifts)
   } 
   else {
     out_list <- starting_list
